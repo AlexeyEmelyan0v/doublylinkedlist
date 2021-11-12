@@ -45,12 +45,25 @@ public:
         return false;
     };
 
+    int size() {
+        int cnt=1;
+        if(empty()){
+            return 0;
+        }
+        node<T>* wh=head;
+        while(wh!=tail){
+            cnt++;
+            wh=wh->next;
+        }
+        return cnt;
+    }
+
     void begpush(T v) {
         node<T> *ndp = new node(v);
         if (empty()) {
             head = ndp;
             tail = ndp;
-            cur=ndp;
+            cur = ndp;
         } else {
             head->prev = ndp;
             ndp->next = head;
@@ -72,9 +85,9 @@ public:
     }
 
     void curpush(T v) {
-        if(cur==nullptr){
+        if (cur == nullptr) {
             throw "cursor == nullptr";
-        }else if (cur == head) {
+        } else if (cur == head) {
             begpush(v);
         } else {
             node<T> *ndp = new node(v);
@@ -86,74 +99,79 @@ public:
         }
     }
 
-    void curforward(){
-        if(cur==nullptr){
+    void curforward() {
+        if (cur == nullptr) {
             throw "cursor == nullptr";
-        }else{
-            cur=cur->next;
+        } else if (cur != tail) {
+            cur = cur->next;
         }
     }
 
-    void curback(){
-        if(cur==nullptr){
+    void curback() {
+        if (cur == nullptr) {
             throw "cursor == nullptr";
-        }else{
-            cur=cur->prev;
+        } else if (cur != head) {
+            cur = cur->prev;
         }
     }
 
-    void begdel(){
-        if(empty()){
+    void begdel() {
+        if (empty()) {
             throw "list is empty";
-        }else{
-            if(head==tail){
-                node<T>* temp=head;
-                head=nullptr;
-                tail=nullptr;
-                cur= nullptr;
+        } else {
+            if (head == tail) {
+                node<T> *temp = head;
+                head = nullptr;
+                tail = nullptr;
+                cur = nullptr;
                 delete temp;
-            }else{
-                node<T>* temp=head;
-                head->next->prev=head->prev;
-                head=head->next;
+            } else {
+                if (cur == head) {
+                    cur = head->next;
+                }
+                node<T> *temp = head;
+                head->next->prev = head->prev;
+                head = head->next;
                 delete temp;
             }
         }
     }
 
-    void enddel(){
-        if(empty()){
+    void enddel() {
+        if (empty()) {
             throw "list is empty";
-        }else{
-            if(head==tail){
-                node<T>* temp=tail;
-                head=nullptr;
-                tail=nullptr;
-                cur=nullptr;
+        } else {
+            if (head == tail) {
+                node<T> *temp = tail;
+                head = nullptr;
+                tail = nullptr;
+                cur = nullptr;
                 delete temp;
-            }else{
-                node<T>* temp=tail;
-                tail->prev->next=tail->next;
-                tail=tail->prev;
+            } else {
+                if (cur == tail) {
+                    cur = cur->prev;
+                }
+                node<T> *temp = tail;
+                tail->prev->next = tail->next;
+                tail = tail->prev;
                 delete temp;
             }
         }
     };
 
-    void curdel(){
-        if(empty()){
+    void curdel() {
+        if (empty()) {
             throw "list is empty";
-        }else if(cur==head){
+        } else if (cur == head) {
             begdel();
-        }else if(cur==tail){
+        } else if (cur == tail) {
             enddel();
-        }else{
-            node<T>* temp=cur;
-            cur->next=cur->prev;
-            cur->prev=cur->next;
-            cur=cur->next;
+        } else {
+            node<T> *temp = cur;
+            cur->next->prev = cur->prev;
+            cur->prev->next = cur->next;
+            cur = temp->next;
             delete temp;
-
         }
     }
 

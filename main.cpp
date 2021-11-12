@@ -1,95 +1,179 @@
 #include <iostream>
 #include "dllist.h"
+#define int long long
 using namespace std;
-int main() {
-    int cmnd=0,value;
-    dllist<int> a;
+dllist<int> a;
+int score=0;
+void row(){
+    node<int>* wh;
+    bool change = 1;
+    while (change) {
+        wh = a.head;
+        change = 0;
+        while (wh != nullptr && wh != a.tail) {
+            if (wh != a.head) {
+                if (wh->data == wh->next->data && wh->data == wh->prev->data) {
+                    node<int>* oldcur=a.cur;
+                    a.cur=wh->prev;
+                    int x=a.cur->data;
+                    while(a.cur!=nullptr && a.cur->data==x){
+                        if(oldcur==a.cur){
+                            oldcur=oldcur->next;
+                        }
+                        if(wh==a.cur){
+                            wh=wh->next;
+                        }
+                        score++;
+                        a.curdel();
+                    }
+                    change = 1;
+                    if(oldcur!=nullptr) {
+                        a.cur = oldcur;
+                    }else{
+                        a.cur=a.tail;
+                    }
+                    break;
+                }
+            }
+            wh = wh->next;
+        }
+    }
+}
+
+void coutcursor(){
+    node<int>* wh;
+    wh = a.head;
+    while (wh != a.cur) {
+        cout << "  ";
+        wh = wh->next;
+    }
+    cout << "^" << endl;
+}
+
+void pushcolor(int color,int pos){
+    if (a.head == nullptr) {
+        a.begpush(color);
+    } else {
+        if (pos == 0) {
+            a.curpush(color);
+        } else if (pos > 5 || pos < -5) {
+            cout << "wrong position" << endl;
+        } else if (pos > 0 && pos <= 5) {
+            int cnt = 0;
+            node<int> *oldcur = a.cur;
+            for (int i = 0; i < pos; i++) {
+                try {
+                    a.curforward();
+                    cnt++;
+                }
+                catch (const char *msg) {
+                    cerr << msg << endl;
+                    break;
+                }
+            }
+            if (a.cur == a.tail && cnt != abs(pos)) {
+                a.endpush(color);
+            } else {
+                a.curpush(color);
+            }
+            a.cur = oldcur;
+        } else {
+            int cnt = 0;
+            node<int> *oldcur = a.cur;
+            for (int i = 0; i < -pos; i++) {
+                try {
+                    a.curback();
+                    cnt++;
+                }
+                catch (const char *msg) {
+                    cerr << msg << endl;
+                    break;
+                }
+            }
+            a.curpush(color);
+            a.cur = oldcur;
+        }
+    }
+}
+
+int stupidbot(int color){
+    node<int>* l=a.cur;
+    node<int>* r=a.cur;
+    node<int>* wh;
+    int lpos=0;
+    for(int i=0;i<5;i++){
+        if(l!=nullptr && l!=a.head){
+            lpos--;
+            l=l->prev;
+        }
+    }
+    for(int i=0;i<5;i++){
+        if(r!=nullptr && r!=a.tail){
+            r=r->next;
+        }
+    }
+    int pos=lpos;
+    for(wh=l;wh!=r;wh=wh->next){
+        if(wh->data==color && wh->next->data==color){
+            return pos;
+        }
+        pos++;
+    }
+    pos=lpos;
+    for(wh=l;wh!=nullptr && wh!=r->next;wh=wh->next){
+        if(wh->data==color){
+            return pos;
+        }
+        pos++;
+    }
+
+    return 0;
+}
+
+signed main() {
+    int n, cmnd, pos, color;
+    cin >> n;
+    for (int i = 0; i < n; i++) {
+        a.endpush(rand() % 3 + 1);
+    }
+    cout << a << endl;
+    node<int> *wh = a.head;
+    while (wh != a.cur) {
+        cout << "  ";
+        wh = wh->next;
+    }
+    row();
+    cout << "^" << endl;
+    cout << "Input 1 if you want to play\n";
+    cout << "Input 2 if you want to watch\n";
     cout << "Input 999 if you want to end\n";
-    cout << "Input 1 if you want check emptiness of list\n";
-    cout << "Input 2 and value if you want to insert to the beginning of the list\n";
-    cout << "Input 3 and value if you want to insert to the end of the linked list\n";
-    cout << "Input 4 and value if you want to insert before the cursor\n";
-    cout << "Input 5 if you want to remove an element from the beginning\n";
-    cout << "Input 6 if you want to remove an element from the end\n";
-    cout << "Input 7 if you want to remove cursor element\n";
-    cout << "Input 8 if you want to move cursor forward\n";
-    cout << "Input 9 if you want to move cursor back\n";
-    cout << "Input 10 if you want to know value of the cursor element\n";
-    while(cmnd!=999){
-        cin>>cmnd;
-        if (cmnd == 1) {
-            if (a.empty()) {
-                cout << "List is empty\n";
-            }else{
-                cout<< "List isn't empty\n";
-            }
+    cin >> cmnd;
+    if (cmnd == 1) {
+        while (cmnd != 999 && pos!=999) {
+            color = rand() % 3 + 1;
+            cout << "Color: " << color << endl;
+            cout << "Input position where you want to insert:";
+            cin >> pos;
+            pushcolor(color,pos);
+            row();
+            cout << a << endl;
+            coutcursor();
+            cout<<"Your score: "<<score<<endl;
         }
-        if(cmnd == 2) {
-            cin>>value;
-            a.begpush(value);
+    } else {
+        int cnt = 1;
+        while(true){
+            color=rand()%3+1;
+            int pos=stupidbot(color);
+            pushcolor(color,pos);
+            row();
+            if(cnt==1000000){
+                cnt=0;
+                cout<<"Balls left: "<<a.size()<<endl;
+                cout<<"Score: "<<score<<endl;
+            }
+            cnt++;
         }
-        if(cmnd == 3) {
-            cin>>value;
-            a.endpush(value);
-        }
-        if(cmnd == 4) {
-            cin>>value;
-            try {
-                a.curpush(value);
-            }
-            catch(const char* msg){
-                cerr<<msg<<endl;
-            }
-        }
-        if(cmnd == 5){
-            try {
-                a.begdel();
-            }
-            catch(const char* msg){
-                cerr<<msg<<endl;
-            }
-        }
-        if(cmnd == 6){
-            try {
-                a.enddel();
-            }
-            catch(const char* msg){
-                cerr<<msg<<endl;
-            }
-        }
-        if(cmnd == 7){
-            try {
-                a.curdel();
-            }
-            catch(const char* msg){
-                cerr<<msg<<endl;
-            }
-        }
-        if(cmnd == 8){
-            try {
-                a.curforward();
-            }
-            catch(const char* msg){
-                cerr<<msg<<endl;
-            }
-        }
-        if(cmnd == 9){
-            try {
-                a.curback();
-            }
-            catch(const char* msg){
-                cerr<<msg<<endl;
-            }
-        }
-        if(cmnd == 10){
-            try {
-                cout<<*a.cur<<endl;
-            }
-            catch(const char* msg){
-                cerr<<msg<<endl;
-            }
-        }
-        cout<<a<<endl;
     }
     return 0;
 }
